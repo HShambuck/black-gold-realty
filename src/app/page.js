@@ -1,9 +1,20 @@
+import HeroSection       from '@/components/home/HeroSection';
+import FeaturedListings  from '@/components/home/FeaturedListings';
+import WhyChooseUs       from '@/components/home/WhyChooseUs';
+import CTASection        from '@/components/home/CTASection';
+
+export const metadata = {
+  title:       'Ghana\'s Premier Luxury Real Estate Group',
+  description: 'Black Gold Realty Group — exceptional properties across Accra. Luxury villas, penthouses, executive homes, and investment land.',
+};
+
 export default function Home() {
   return (
-    <div className="text-white bg-black min-h-screen flex items-center justify-center">
-      <h1 className="text-4xl font-bold">
-        Black Gold Realty MVP Working 🚀
-      </h1>
-    </div>
+    <>
+      <HeroSection />
+      <FeaturedListings />
+      <WhyChooseUs />
+      <CTASection />
+    </>
   );
 }

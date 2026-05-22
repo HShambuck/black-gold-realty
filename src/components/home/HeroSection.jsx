@@ -10,11 +10,11 @@ import { useUI } from '@/context/UIContext';
 
 const { hero, ticker } = siteContent;
 
-// Animation variants
 const containerVariants = {
   hidden:  {},
-  visible: { transition: { staggerChildren: 0.2, delayChildren: 0.5 } },
+  visible: { transition: { staggerChildren: 0.18, delayChildren: 0.4 } },
 };
+
 const itemVariants = {
   hidden:  { opacity: 0, y: 40 },
   visible: {
@@ -24,17 +24,20 @@ const itemVariants = {
 };
 
 export default function HeroSection() {
-  const videoRef = useRef(null);
-  const [playing, setPlaying]  = useState(true);
-  const [muted, setMuted]      = useState(true);
-  const [loaded, setLoaded]    = useState(false);
-  const { openModal }          = useUI();
+  const videoRef            = useRef(null);
+  const [playing, setPlaying] = useState(true);
+  const [muted,   setMuted]   = useState(true);
+  const [loaded,  setLoaded]  = useState(false);
+  const [hasVideo, setHasVideo] = useState(true);
+  const { openModal }         = useUI();
 
-  // Autoplay
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
-    video.play().catch(() => setPlaying(false));
+    video.play().catch(() => {
+      setPlaying(false);
+      setHasVideo(false);
+    });
   }, []);
 
   const togglePlay = () => {
@@ -52,12 +55,15 @@ export default function HeroSection() {
   };
 
   const scrollDown = () => {
-    const next = document.getElementById('featured-listings');
-    next?.scrollIntoView({ behavior: 'smooth' });
+    document.getElementById('featured-listings')?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  // Ticker height offset — keeps scroll indicator above ticker
+  const TICKER_H = 'bottom-[3.5rem]';
 
   return (
     <section className="hero-video-container">
+
       {/* ── VIDEO BACKGROUND ── */}
       <video
         ref={videoRef}
@@ -70,35 +76,49 @@ export default function HeroSection() {
         playsInline
         preload="metadata"
         onCanPlay={() => setLoaded(true)}
+        onError={() => setHasVideo(false)}
         aria-hidden="true"
       />
+
+      {/* Poster fallback shown until video loads or if video fails */}
+      {(!loaded || !hasVideo) && (
+        <div
+          className="hero-video"
+          style={{
+            backgroundImage:    `url(${hero.posterUrl})`,
+            backgroundSize:     'cover',
+            backgroundPosition: 'center',
+          }}
+          aria-hidden="true"
+        />
+      )}
 
       {/* ── OVERLAYS ── */}
       <div className="hero-overlay" />
       <div className="hero-overlay-bottom" />
-
-      {/* Subtle gold vignette at edges */}
+      {/* Radial vignette */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: 'radial-gradient(ellipse at center, transparent 40%, rgba(10,10,10,0.5) 100%)',
+          background: 'radial-gradient(ellipse at center, transparent 35%, rgba(10,10,10,0.55) 100%)',
         }}
       />
 
-      {/* ── HERO CONTENT ── */}
+      {/* ── MAIN CONTENT ── */}
       <div className="relative z-10 h-full flex flex-col">
         <div className="flex-1 flex items-center">
-          <div className="container-luxury w-full">
+          <div className="container-luxury w-full pt-24 md:pt-28 pb-10">
             <motion.div
               variants={containerVariants}
               initial="hidden"
               animate="visible"
               className="max-w-3xl"
             >
+
               {/* Badge */}
-              <motion.div variants={itemVariants} className="flex items-center gap-3 mb-6">
-                <div className="h-px w-8 bg-gold-500" />
-                <span className="font-sans text-gold-500 text-xs tracking-[0.4em] uppercase font-medium">
+              <motion.div variants={itemVariants} className="flex items-center gap-3 mb-5 md:mb-6">
+                <div className="h-px w-8 bg-gold-500 flex-shrink-0" />
+                <span className="font-sans text-gold-500 text-[0.65rem] tracking-[0.4em] uppercase font-medium">
                   {hero.badge}
                 </span>
               </motion.div>
@@ -106,35 +126,32 @@ export default function HeroSection() {
               {/* Headline */}
               <motion.h1
                 variants={itemVariants}
-                className="font-display text-white font-semibold leading-none mb-6"
+                className="font-display text-white font-semibold leading-[1.05] mb-5 md:mb-6"
                 style={{
-                  fontSize: 'clamp(3rem, 7vw, 6rem)',
+                  fontSize:   'clamp(2.8rem, 7vw, 6rem)',
                   fontFamily: "'Cormorant Garamond', serif",
-                  whiteSpace: 'pre-line',
                 }}
               >
                 {hero.headline.split('\n').map((line, i) => (
                   <span key={i} className="block">
                     {i === 1 ? (
                       <span className="text-gold-gradient">{line}</span>
-                    ) : (
-                      line
-                    )}
+                    ) : line}
                   </span>
                 ))}
               </motion.h1>
 
-              {/* Gold line */}
+              {/* Gold divider */}
               <motion.div
                 variants={itemVariants}
-                className="h-px w-20 mb-6"
+                className="h-px w-20 mb-5 md:mb-6"
                 style={{ background: 'linear-gradient(90deg, #C9A84C, transparent)' }}
               />
 
               {/* Subheadline */}
               <motion.p
                 variants={itemVariants}
-                className="font-sans text-white/60 text-base md:text-lg leading-relaxed max-w-lg mb-10"
+                className="font-sans text-white/55 text-sm md:text-base lg:text-lg leading-relaxed max-w-lg mb-8 md:mb-10"
               >
                 {hero.subheadline}
               </motion.p>
@@ -142,16 +159,12 @@ export default function HeroSection() {
               {/* CTA Buttons */}
               <motion.div
                 variants={itemVariants}
-                className="flex flex-col sm:flex-row gap-4 mb-14"
+                className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-10 md:mb-14"
               >
                 <GoldButton href={hero.cta.primary.href} size="lg">
                   {hero.cta.primary.label}
                 </GoldButton>
-                <GoldButton
-                  onClick={openModal}
-                  variant="outline"
-                  size="lg"
-                >
+                <GoldButton onClick={openModal} variant="outline" size="lg">
                   {hero.cta.secondary.label}
                 </GoldButton>
               </motion.div>
@@ -159,14 +172,17 @@ export default function HeroSection() {
               {/* Stats Row */}
               <motion.div
                 variants={itemVariants}
-                className="flex flex-wrap gap-8"
+                className="grid grid-cols-2 sm:flex sm:flex-wrap gap-x-8 gap-y-5"
               >
                 {hero.stats.map((stat, i) => (
                   <div key={i} className="flex flex-col">
-                    <span className="font-display text-gold-500 text-3xl font-semibold">
+                    <span
+                      className="font-display text-gold-500 text-2xl md:text-3xl font-semibold leading-none mb-1"
+                      style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                    >
                       {stat.value}
                     </span>
-                    <span className="font-sans text-white/40 text-xs tracking-widest uppercase">
+                    <span className="font-sans text-white/35 text-[0.6rem] tracking-widest uppercase">
                       {stat.label}
                     </span>
                   </div>
@@ -177,17 +193,16 @@ export default function HeroSection() {
         </div>
 
         {/* ── TICKER STRIP ── */}
-        <div className="border-t border-gold-500/20 bg-obsidian-950/40 backdrop-blur-sm py-3">
+        <div className="border-t border-gold-500/15 bg-obsidian-950/50 backdrop-blur-sm py-2.5">
           <div className="ticker-wrapper">
-            <div className="animate-ticker inline-flex gap-12">
-              {/* Doubled for seamless loop */}
+            <div className="animate-ticker inline-flex gap-10">
               {[...ticker, ...ticker].map((item, i) => (
                 <span
                   key={i}
-                  className="font-sans text-white/50 text-xs tracking-wide whitespace-nowrap"
+                  className="font-sans text-white/45 text-[0.7rem] tracking-wide whitespace-nowrap"
                 >
                   {item}
-                  <span className="mx-6 text-gold-500">◆</span>
+                  <span className="mx-5 text-gold-500 text-[0.5rem]">◆</span>
                 </span>
               ))}
             </div>
@@ -195,39 +210,53 @@ export default function HeroSection() {
         </div>
       </div>
 
-      {/* ── VIDEO CONTROLS ── */}
-      <div className="absolute bottom-20 right-6 z-20 flex gap-2">
-        <button
-          onClick={toggleMute}
-          aria-label={muted ? 'Unmute' : 'Mute'}
-          className="w-9 h-9 rounded-full border border-white/20 bg-obsidian-950/50 backdrop-blur-sm flex items-center justify-center text-white/60 hover:text-white hover:border-white/40 transition-colors"
-        >
-          {muted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-        </button>
-        <button
-          onClick={togglePlay}
-          aria-label={playing ? 'Pause' : 'Play'}
-          className="w-9 h-9 rounded-full border border-white/20 bg-obsidian-950/50 backdrop-blur-sm flex items-center justify-center text-white/60 hover:text-white hover:border-white/40 transition-colors"
-        >
-          {playing ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-        </button>
-      </div>
+      {/* ── VIDEO CONTROLS — right side, above ticker ── */}
+      {hasVideo && (
+        <div className={`absolute ${TICKER_H} right-4 md:right-6 z-20 flex gap-2 translate-y-[-100%] mb-3`}>
+          <button
+            onClick={toggleMute}
+            aria-label={muted ? 'Unmute video' : 'Mute video'}
+            className="w-9 h-9 rounded-full border border-white/15 bg-obsidian-950/60 backdrop-blur-sm flex items-center justify-center text-white/50 hover:text-white hover:border-white/30 transition-colors cursor-pointer"
+          >
+            {muted
+              ? <VolumeX className="w-3.5 h-3.5" />
+              : <Volume2 className="w-3.5 h-3.5" />
+            }
+          </button>
+          <button
+            onClick={togglePlay}
+            aria-label={playing ? 'Pause video' : 'Play video'}
+            className="w-9 h-9 rounded-full border border-white/15 bg-obsidian-950/60 backdrop-blur-sm flex items-center justify-center text-white/50 hover:text-white hover:border-white/30 transition-colors cursor-pointer"
+          >
+            <AnimatePresence mode="wait">
+              {playing
+                ? <motion.span key="pause" initial={{ scale: 0.7, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.7, opacity: 0 }} transition={{ duration: 0.12 }}>
+                    <Pause className="w-3.5 h-3.5" />
+                  </motion.span>
+                : <motion.span key="play"  initial={{ scale: 0.7, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.7, opacity: 0 }} transition={{ duration: 0.12 }}>
+                    <Play  className="w-3.5 h-3.5" />
+                  </motion.span>
+              }
+            </AnimatePresence>
+          </button>
+        </div>
+      )}
 
-      {/* ── SCROLL INDICATOR ── */}
+      {/* ── SCROLL INDICATOR — centered, above ticker ── */}
       <motion.button
         onClick={scrollDown}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 2, duration: 1 }}
-        className="absolute bottom-20 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 text-white/30 hover:text-gold-500 transition-colors"
-        aria-label="Scroll down"
+        transition={{ delay: 2.2, duration: 1 }}
+        className={`absolute ${TICKER_H} left-1/2 -translate-x-1/2 -translate-y-full mb-3 z-20 flex flex-col items-center gap-1.5 text-white/25 hover:text-gold-500 transition-colors cursor-pointer`}
+        aria-label="Scroll to listings"
       >
-        <span className="font-sans text-xs tracking-[0.3em] uppercase">Scroll</span>
+        <span className="font-sans text-[0.55rem] tracking-[0.35em] uppercase">Scroll</span>
         <motion.div
-          animate={{ y: [0, 6, 0] }}
-          transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}
+          animate={{ y: [0, 5, 0] }}
+          transition={{ repeat: Infinity, duration: 1.6, ease: 'easeInOut' }}
         >
-          <ChevronDown className="w-5 h-5" />
+          <ChevronDown className="w-4 h-4" />
         </motion.div>
       </motion.button>
     </section>

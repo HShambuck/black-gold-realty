@@ -1,4 +1,4 @@
-import { Inter } from 'next/font/google';
+import { Inter, Playfair_Display, Cormorant_Garamond } from 'next/font/google';
 import './globals.css';
 import { UIProvider } from '@/context/UIContext';
 import Navbar from '@/components/common/Navbar';
@@ -12,6 +12,22 @@ const inter = Inter({
   subsets:  ['latin'],
   variable: '--font-inter',
   display:  'swap',
+});
+
+const playfair = Playfair_Display({
+  subsets:  ['latin'],
+  variable: '--font-playfair',
+  display:  'swap',
+  weight:   ['400', '600', '700'],
+  style:    ['normal', 'italic'],
+});
+
+const cormorant = Cormorant_Garamond({
+  subsets:  ['latin'],
+  variable: '--font-cormorant',
+  display:  'swap',
+  weight:   ['300', '400', '500', '600', '700'],
+  style:    ['normal', 'italic'],
 });
 
 export const metadata = {
@@ -35,31 +51,20 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html
+      lang="en"
+      className={`${inter.variable} ${playfair.variable} ${cormorant.variable}`}
+    >
       <head>
-        {/* Preconnect for performance */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://res.cloudinary.com" />
       </head>
       <body className="bg-obsidian-950 text-white antialiased">
         <UIProvider>
-          {/* Global Navigation */}
           <Navbar />
-
-          {/* Page Content */}
           <main className="min-h-screen">{children}</main>
-
-          {/* Global Footer */}
           <Footer />
-
-          {/* Always-visible WhatsApp CTA */}
           <WhatsAppButton />
-
-          {/* Scroll to top button */}
           <ScrollToTop />
-
-          {/* Lead capture modal — global */}
           <LeadCaptureModal />
         </UIProvider>
       </body>

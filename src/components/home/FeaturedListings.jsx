@@ -1,13 +1,12 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { getFeaturedProperties } from '@/data/properties';
 import { siteContent } from '@/data/siteContent';
-import PropertyCard from '@/components/common/PropertyCard';
-import SectionHeading from '@/components/common/SectionHeading';
-import GoldButton from '@/components/common/GoldButton';
+import PropertyCard    from '@/components/common/PropertyCard';
+import SectionHeading  from '@/components/common/SectionHeading';
+import GoldButton      from '@/components/common/GoldButton';
 
 const { featuredSection } = siteContent;
 
@@ -17,11 +16,12 @@ export default function FeaturedListings() {
   return (
     <section
       id="featured-listings"
-      className="py-24 lg:py-32 bg-obsidian-950"
+      className="py-20 md:py-24 lg:py-32 bg-obsidian-950"
     >
       <div className="container-luxury">
+
         {/* Section Header */}
-        <div className="mb-14 lg:mb-20">
+        <div className="mb-12 lg:mb-16">
           <SectionHeading
             badge={featuredSection.badge}
             headline={featuredSection.headline}
@@ -30,8 +30,12 @@ export default function FeaturedListings() {
           />
         </div>
 
-        {/* Property Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8 mb-14">
+        {/* Property Grid
+            mobile:  1 column (full width cards)
+            sm:      2 columns
+            xl:      3 columns
+        */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 md:gap-6 lg:gap-8 mb-12 lg:mb-14">
           {featured.map((property, i) => (
             <PropertyCard
               key={property.id}
@@ -48,7 +52,7 @@ export default function FeaturedListings() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center"
+          className="flex justify-center"
         >
           <GoldButton
             href={featuredSection.cta.href}

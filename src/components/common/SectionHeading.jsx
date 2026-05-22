@@ -5,39 +5,53 @@ import clsx from 'clsx';
 
 /**
  * SectionHeading — Reusable luxury section header.
- * badge (small uppercase label above)
- * headline (large serif heading)
- * subheadline (paragraph)
- * align: 'left' | 'center' | 'right'
+ *
+ * Props:
+ *   badge           — small uppercase label above
+ *   headline        — large display serif heading (supports \n line breaks)
+ *   subheadline     — body paragraph below
+ *   align           — 'left' | 'center' | 'right'
+ *   theme           — 'dark' | 'light'
+ *   headlineSize    — 'sm' | 'md' | 'lg' (default 'lg')
+ *   className       — extra classes on wrapper
+ *   headlineClassName — extra classes on h2
  */
 export default function SectionHeading({
   badge,
   headline,
   subheadline,
-  align     = 'center',
+  align            = 'center',
+  theme            = 'dark',
+  headlineSize     = 'lg',
   className,
-  theme     = 'dark',  // 'dark' | 'light'
   headlineClassName,
 }) {
   const containerAlign = {
     left:   'items-start text-left',
     center: 'items-center text-center',
     right:  'items-end text-right',
-  }[align];
+  }[align] ?? 'items-center text-center';
 
   const dividerAlign = {
     left:   'mr-auto',
     center: 'mx-auto',
     right:  'ml-auto',
-  }[align];
+  }[align] ?? 'mx-auto';
 
-  const headlineColor = theme === 'dark' ? 'text-white'          : 'text-obsidian-950';
-  const subColor      = theme === 'dark' ? 'text-white/50'       : 'text-obsidian-700';
-  const badgeColor    = theme === 'dark' ? 'text-gold-500'       : 'text-gold-700';
+  const headlineColor = theme === 'dark'  ? 'text-white'       : 'text-obsidian-950';
+  const subColor      = theme === 'dark'  ? 'text-white/48'    : 'text-obsidian-700';
+  const badgeColor    = theme === 'dark'  ? 'text-gold-500'    : 'text-gold-700';
+
+  // Safe fluid font sizes — no custom Tailwind tokens needed
+  const headlineFontSize = {
+    sm: 'clamp(1.75rem, 3.5vw, 2.25rem)',
+    md: 'clamp(2rem,   4.5vw, 3rem)',
+    lg: 'clamp(2.25rem, 5.5vw, 3.75rem)',
+  }[headlineSize] ?? 'clamp(2.25rem, 5.5vw, 3.75rem)';
 
   const containerVariants = {
     hidden:  {},
-    visible: { transition: { staggerChildren: 0.15 } },
+    visible: { transition: { staggerChildren: 0.14 } },
   };
 
   const itemVariants = {
@@ -50,21 +64,16 @@ export default function SectionHeading({
       variants={containerVariants}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, margin: '-80px' }}
-      className={clsx('flex flex-col gap-4', containerAlign, className)}
+      viewport={{ once: true, margin: '-70px' }}
+      className={clsx('flex flex-col gap-3 md:gap-4', containerAlign, className)}
     >
       {/* Badge */}
       {badge && (
         <motion.div variants={itemVariants} className="flex items-center gap-3">
-          <span
-            className={clsx(
-              'font-sans text-xs tracking-[0.35em] uppercase font-medium',
-              badgeColor
-            )}
-          >
+          <span className={clsx('font-sans text-[0.65rem] tracking-[0.35em] uppercase font-medium', badgeColor)}>
             {badge}
           </span>
-          <span className="h-px w-10 bg-gold-500 opacity-60" />
+          <span className="h-px w-8 bg-gold-500 opacity-50 flex-shrink-0" />
         </motion.div>
       )}
 
@@ -74,11 +83,14 @@ export default function SectionHeading({
           variants={itemVariants}
           className={clsx(
             'font-display font-semibold leading-tight',
-            'text-display-md md:text-display-lg lg:text-display-xl',
             headlineColor,
             headlineClassName
           )}
-          style={{ whiteSpace: 'pre-line' }}
+          style={{
+            fontSize:   headlineFontSize,
+            fontFamily: "'Cormorant Garamond', Georgia, serif",
+            whiteSpace: 'pre-line',
+          }}
         >
           {headline}
         </motion.h2>
@@ -87,10 +99,8 @@ export default function SectionHeading({
       {/* Gold divider */}
       <motion.div
         variants={itemVariants}
-        className={clsx('h-px bg-gold-500/30 w-16', dividerAlign)}
-        style={{
-          background: 'linear-gradient(90deg, #C9A84C, rgba(201,168,76,0.1))',
-        }}
+        className={clsx('h-px w-14', dividerAlign)}
+        style={{ background: 'linear-gradient(90deg, #C9A84C, rgba(201,168,76,0.1))' }}
       />
 
       {/* Subheadline */}
@@ -98,7 +108,7 @@ export default function SectionHeading({
         <motion.p
           variants={itemVariants}
           className={clsx(
-            'font-sans text-base md:text-lg leading-relaxed max-w-2xl',
+            'font-sans text-sm md:text-base lg:text-lg leading-relaxed max-w-2xl',
             subColor,
             align === 'center' && 'mx-auto'
           )}
